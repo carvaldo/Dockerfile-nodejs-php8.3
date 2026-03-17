@@ -46,7 +46,11 @@ RUN docker-php-ext-configure gd --with-jpeg \
         gd \
         zip \
         intl \
-        calendar
+        calendar \
+	    sqlite3 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Imagick
 RUN pecl install imagick && docker-php-ext-enable imagick
@@ -67,7 +71,5 @@ ENV LANGUAGE=pt_BR:pt
 ENV LC_ALL=pt_BR.UTF-8
 
 WORKDIR /var/www/html
-
-USER app
 
 EXPOSE 8000
