@@ -1,6 +1,6 @@
 FROM php:8.3-cli
 
-# UID/GID do host (evita problemas de permissão)
+# UID/GID do host para o usuário www-data (evita problemas de permissão)
 ARG UID=1000
 ARG GID=1000
 
@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     gnupg \
     curl \
+    sudo \
     libpng-dev \
     libjpeg62-turbo-dev \
     libonig-dev \
@@ -70,11 +71,13 @@ RUN pecl install imagick && docker-php-ext-enable imagick
 RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Criar usuário com mesmo UID do host
-RUN groupadd -g ${GID} app \
-    && useradd -u ${UID} -g app -m app \
+# Ajustar usuário/grupo padrão www-data com UID/GID do host
+RUN groupmod -g ${GID} www-data \
+    && usermod -u ${UID} -g ${GID} www-data \
     && mkdir -p /var/www \
-    && chown -R app:app /var/www
+    && chown -R www-data:www-data /var/www \
+    && echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/www-data \
+    && chmod 0440 /etc/sudoers.d/www-data
 
 # Locale
 ENV LANG=pt_BR.UTF-8
@@ -83,6 +86,6 @@ ENV LC_ALL=pt_BR.UTF-8
 
 WORKDIR /var/www/html
 
-USER app
+USER www-data
 
 EXPOSE 8000
