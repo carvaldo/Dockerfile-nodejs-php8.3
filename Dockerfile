@@ -28,13 +28,49 @@ RUN apt-get update && apt-get install -y \
     locales \
     libnspr4 \
     libnss3 \
-    chromium \
-    chromium-driver \
+    libatk1.0-0t64 \
+    libatk-bridge2.0-0t64 \
+    libcups2t64 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0t64 \
+    libasound2t64 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libxkbcommon0 \
+    libpango-1.0-0 \
+    libcairo2 \
+    fonts-liberation \
+    xdg-utils \
     git \
     poppler-utils \
     openjdk-21-jre-headless \
     && echo "pt_BR.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen pt_BR.UTF-8
+
+# Chrome for Testing + ChromeDriver (mesmo milestone; evita mismatch no Dusk)
+ARG CHROME_FOR_TESTING_VERSION=156.0.8078.80
+RUN set -eux; \
+    arch="$(uname -m)"; \
+    case "$arch" in \
+        x86_64) cft_platform=linux64 ;; \
+        aarch64) cft_platform=linux-arm64 ;; \
+        *) echo "unsupported arch: $arch" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_FOR_TESTING_VERSION}/${cft_platform}/chrome-${cft_platform}.zip" \
+        -o /tmp/chrome.zip; \
+    curl -fsSL "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_FOR_TESTING_VERSION}/${cft_platform}/chromedriver-${cft_platform}.zip" \
+        -o /tmp/chromedriver.zip; \
+    unzip -q /tmp/chrome.zip -d /opt; \
+    unzip -q /tmp/chromedriver.zip -d /opt; \
+    mv "/opt/chrome-${cft_platform}" /opt/chrome; \
+    install -m 0755 "/opt/chromedriver-${cft_platform}/chromedriver" /usr/bin/chromedriver; \
+    ln -sf /opt/chrome/chrome /usr/bin/chromium; \
+    ln -sf /opt/chrome/chrome /usr/bin/chromium-browser; \
+    ln -sf /opt/chrome/chrome /usr/bin/google-chrome; \
+    rm -rf /tmp/chrome.zip /tmp/chromedriver.zip "/opt/chromedriver-${cft_platform}"
 
 # Node LTS
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \

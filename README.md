@@ -9,7 +9,7 @@ Imagem Docker baseada em `php:8.3-cli` para desenvolvimento web, com Node.js LTS
 - Composer
 - Locale `pt_BR.UTF-8`
 - Utilitários de sistema (`curl`, `wget`, `zip`, `unzip`, `nano`, `ping`)
-- Chromium e ChromeDriver do mesmo pacote Debian (`chromium` e `chromium-driver`). O binário do driver fica em `/usr/bin/chromedriver`. Não use o `chromedriver` empacotado pelo Laravel Dusk em `vendor/`: a versão diverge e a sessão do browser não abre.
+- Chrome for Testing e ChromeDriver no mesmo milestone (`156.0.8078.80`). Binários em `/opt/chrome/chrome` e `/usr/bin/chromedriver`, com symlinks `chromium` / `google-chrome`. Não use o `chromedriver` empacotado pelo Laravel Dusk em `vendor/`: a versão diverge e a sessão do browser não abre.
 - OpenJDK 21 (JRE headless) e veraPDF CLI (`/opt/verapdf`, comando `verapdf`) para validação PDF/A e PDF/UA
 - Extensões PHP:
   - `pdo`, `pdo_mysql`, `pgsql`, `pdo_pgsql`
