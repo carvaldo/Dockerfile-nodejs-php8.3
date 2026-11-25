@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
     chromium-driver \
     git \
     poppler-utils \
+    openjdk-17-jre-headless \
     && echo "pt_BR.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen pt_BR.UTF-8
 
@@ -72,6 +73,21 @@ RUN pecl install imagick && docker-php-ext-enable imagick
 # Composer
 RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
+
+# veraPDF CLI (validação PDF/A e PDF/UA)
+ARG VERAPDF_VERSION=1.30
+ARG VERAPDF_MINOR_VERSION=4
+COPY verapdf-auto-install.xml /tmp/verapdf-auto-install.xml
+RUN set -eux; \
+    curl -fsSL "https://software.verapdf.org/releases/${VERAPDF_VERSION}/verapdf-greenfield-${VERAPDF_VERSION}.${VERAPDF_MINOR_VERSION}-installer.zip" \
+        -o /tmp/verapdf-installer.zip; \
+    unzip -q /tmp/verapdf-installer.zip -d /tmp; \
+    java -jar "/tmp/verapdf-greenfield-${VERAPDF_VERSION}.${VERAPDF_MINOR_VERSION}/verapdf-izpack-installer-${VERAPDF_VERSION}.${VERAPDF_MINOR_VERSION}.jar" \
+        /tmp/verapdf-auto-install.xml; \
+    ln -sf /opt/verapdf/verapdf /usr/local/bin/verapdf; \
+    rm -rf /tmp/verapdf-installer.zip \
+        "/tmp/verapdf-greenfield-${VERAPDF_VERSION}.${VERAPDF_MINOR_VERSION}" \
+        /tmp/verapdf-auto-install.xml
 
 # Ajustar usuário/grupo padrão www-data com UID/GID do host
 RUN groupmod -g ${GID} www-data \
