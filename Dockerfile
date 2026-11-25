@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     chromium-driver \
     git \
     poppler-utils \
-    openjdk-17-jre-headless \
+    openjdk-21-jre-headless \
     && echo "pt_BR.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen pt_BR.UTF-8
 
